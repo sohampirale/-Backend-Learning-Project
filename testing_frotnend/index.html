@@ -1,0 +1,270 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Request Tester</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background: #f4f7f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+      min-height: 100vh;
+    }
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 600px;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccd0d5;
+      border-radius: 4px;
+      font-size: 14px;
+      resize: vertical;
+    }
+    textarea {
+      height: 100px;
+    }
+    button {
+      background: #007bff;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .output {
+      margin-top: 20px;
+    }
+    .output label {
+      margin-bottom: 8px;
+    }
+    .output pre {
+      background: #eef1f5;
+      padding: 15px;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>API Request Tester</h1>
+    <div class="form-group">
+      <label for="urlInput">Request URL</label>
+      <input type="text" id="urlInput" placeholder="https://api.example.com/endpoint">
+    </div>
+    <div class="form-group">
+      <label for="methodSelect">HTTP Method</label>
+      <select id="methodSelect">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="bodyInput">Request Body (JSON)</label>
+      <textarea id="bodyInput" placeholder='{"key": "value"}'></textarea>
+    </div>
+    <button id="sendBtn">Send Request</button>
+    <div class="output">
+      <label>Response:</label>
+      <pre id="responseArea">Awaiting request...</pre>
+    </div>
+  </div>
+  <script>
+    document.getElementById('sendBtn').addEventListener('click', () => {
+      const url = document.getElementById('urlInput').value.trim();
+      const method = document.getElementById('methodSelect').value;
+      const bodyText = document.getElementById('bodyInput').value.trim();
+      const responseArea = document.getElementById('responseArea');
+
+      if (!url) {
+        alert('Please enter a valid URL');
+        return;
+      }
+
+      let options = { method };
+      if (['POST', 'PUT'].includes(method)) {
+        try {
+          options.headers = { 'Content-Type': 'application/json' };
+          options.body = bodyText ? JSON.stringify(JSON.parse(bodyText)) : null;
+        } catch (err) {
+          alert('Invalid JSON body');
+          return;
+        }
+      }
+
+      responseArea.textContent = 'Loading...';
+
+      fetch(url, options)
+        .then(async res => {
+          const contentType = res.headers.get('content-type');
+          let data;
+          if (contentType && contentType.includes('application/json')) {
+            data = await res.json();
+            responseArea.textContent = JSON.stringify(data, null, 2);
+          } else {
+            data = await res.text();
+            responseArea.textContent = data;
+          }
+        })
+        .catch(err => {
+          responseArea.textContent = 'Error: ' + err.message;
+        });
+    });
+  </script>
+</body>
+</html> -->
+
+
+<!-- file upload -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Independent File Uploads</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .upload-section {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+    }
+    .upload-section h3 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Section 1: Single File Upload -->
+  <div class="upload-section">
+    <h3>Single File Upload</h3>
+    <input type="file" id="singleFileInput" accept="*/*">
+    <button onclick="handleSingleFileUpload()">Submit Single File</button>
+    <p id="singleFileStatus"></p>
+  </div>
+
+  <!-- Section 2: Multiple File Upload -->
+  <div class="upload-section">
+    <h3>Multiple File Upload</h3>
+    <input type="file" id="multiFileInput" multiple accept="*/*">
+    <button onclick="handleMultipleFileUpload()">Submit Multiple Files</button>
+    <p id="multiFileStatus"></p>
+  </div>
+
+  <button onclick="sendReq()">send req</button>
+  <script>
+    // Independent Logic for Single File Upload
+    async function handleSingleFileUpload() {
+      const fileInput = document.getElementById('singleFileInput');
+      const status = document.getElementById('singleFileStatus');
+
+      const file = fileInput.files[0];
+      if (!file) {
+        status.textContent = 'Please select a file.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("avatar",file);
+      const response = await fetch("https://solid-space-fortnight-v6q5gg56jw97cx567-3000.app.github.dev/upload-avatar",{
+        method:"POST",
+        body:formData
+      })
+      const data = await response.json();
+      console.log('data = '+JSON.stringify(data));
+      console.log("Single File:", file);
+      alert()
+    }
+
+    // Independent Logic for Multiple File Upload
+    async function handleMultipleFileUpload() {
+      const fileInput = document.getElementById('multiFileInput');
+      const status = document.getElementById('multiFileStatus');
+
+      const files = fileInput.files;
+      if (files.length === 0) {
+        status.textContent = 'Please select at least one file.';
+        return;
+      }
+      console.log('files = '+JSON.stringify(files));
+      
+      const formData = new FormData();
+      for(let file of files){
+        formData.append("gallery",file)
+      }
+      try{
+      const response = await fetch("https://solid-space-fortnight-v6q5gg56jw97cx567-3000.app.github.dev/upload-photos",{
+        method:"POST",
+        body:formData
+      })
+      } catch(err){
+        console.log('ERROR : '+JSON.stringify(err));
+        alert()
+      }
+      
+      const data = await response.json();
+      console.log('data = '+JSON.stringify(data));
+      alert();
+    }
+  
+    async function sendReq(){
+      const response = await fetch('https://solid-space-fortnight-v6q5gg56jw97cx567-3000.app.github.dev/test',{
+        method:"GET",
+        headers : {'Content-Type': 'application/json'}
+      })
+      console.log(response.status);
+      
+      const data = await response.json();
+      console.log('data = '+JSON.stringify(data));
+      alert()
+    }
+  </script>
+
+</body>
+</html>
