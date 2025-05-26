@@ -2,7 +2,7 @@
 import { z } from "zod";
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Types;
-
+import jwt from "jsonwebtoken"
 //models
 import { User } from "../models/user.models.js";
 import { Subscription } from "../models/subscription.models.js";
@@ -13,17 +13,13 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { FIVE_MINUTES } from "../constants.js";
 import { returnUser } from "../utils/returnUser.js";
-import { email, jwt } from "zod/v4";
 import { generateAccessAndRefreshToken } from "../utils/genereateAccessAndRefreshToken.js";
-
+import { generateAccessToken } from "../utils/generateAccessToken.js";
 //constants
 import { cookieOptions } from "../constants/options.js";
 
 //constants
-import { cookieOptions } from "../constants/options.js";
 import { tr } from "zod/v4/locales";
-import { mongo } from "mongoose";
-import mongoose from "mongoose";
 
 const userSignup = asyncHandler(async (req, res, next) => {
     console.log("inside userSignup");
@@ -355,66 +351,95 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateUserDetails = asyncHandler(async (req, res) => {
-    const user=req.user;
-    const updatedData={
-        username:req.body?req.body.username:user.username,
-        fullName:req.body.fullName?req.body.fullName:user.fullName,
-        email:req.body.email?req.body.email:user.email
-    }
-    const reqUpdates=z.object({
-        username:z.string().min(4).max(100),
-        fullName:z.string().max(100),
-        email:z.string().email().min(5).max(100),
-    })
+    const user = req.user;
+    const updatedData = {
+        username: req.body ? req.body.username : user.username,
+        fullName: req.body.fullName ? req.body.fullName : user.fullName,
+        email: req.body.email ? req.body.email : user.email,
+    };
+    const reqUpdates = z.object({
+        username: z.string().min(4).max(100),
+        fullName: z.string().max(100),
+        email: z.string().email().min(5).max(100),
+    });
 
     const parsedData = reqUpdates.safeParse(updatedData);
-    if(!parsedData.success){
-        throw new ApiError(400,'Insufficient/Invalid data sent - failed to update the user details');
+    if (!parsedData.success) {
+        throw new ApiError(
+            400,
+            "Insufficient/Invalid data sent - failed to update the user details",
+        );
     }
-    const {username,fullName,email}= parsedData.data;
+    const { username, fullName, email } = parsedData.data;
 
-    const newAvatarLocalPath = req.files?.avatar?req.files.avatar[0].path:null;
-    const newCoverImageLocalPath = req.files?.coverImage?req.files.coverImage[0].path:null;
-    let avatarUrl,coverImageUrl;
+    const newAvatarLocalPath = req.files?.avatar
+        ? req.files.avatar[0].path
+        : null;
+    const newCoverImageLocalPath = req.files?.coverImage
+        ? req.files.coverImage[0].path
+        : null;
+    let avatarUrl, coverImageUrl;
 
-    if(newAvatarLocalPath){
-        const response= await uploadFileOnCloudinary(newAvatarLocalPath);
-        if(response){
-            avatarUrl=response.url
+    if (newAvatarLocalPath) {
+        const response = await uploadFileOnCloudinary(newAvatarLocalPath);
+        if (response) {
+            avatarUrl = response.url;
         } else {
-            throw new ApiError(400,'Failed to upload conver image on cloudinary');
+            throw new ApiError(
+                400,
+                "Failed to upload conver image on cloudinary",
+            );
         }
     }
 
-    if(newCoverImageLocalPath){
+    if (newCoverImageLocalPath) {
         const response = await uploadFileOnCloudinary(newCoverImageLocalPath);
-        if(response){
-            coverImageUrl=response.url
+        if (response) {
+            coverImageUrl = response.url;
         } else {
-            throw new ApiError(400,'Failed to upload avatar image on cloudinary')
+            throw new ApiError(
+                400,
+                "Failed to upload avatar image on cloudinary",
+            );
         }
     }
-    let updatedUser=null;
-    try{
-        updatedUser = await User.findByIdAndUpdate(user._id,{
-            username,
-            fullName,
-            email,
-            avatar:avatarUrl?avatarUrl:user.avatar,
-            coverImage:coverImageUrl?coverImageUrl:user.coverImage
-        },{
-            new:true
-        }).select("-password -refreshToken -unsuccessfulAttempts -firstFailedLoginAt -watchHistory");
+    let updatedUser = null;
+    try {
+        updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            {
+                username,
+                fullName,
+                email,
+                avatar: avatarUrl ? avatarUrl : user.avatar,
+                coverImage: coverImageUrl ? coverImageUrl : user.coverImage,
+            },
+            {
+                new: true,
+            },
+        ).select(
+            "-password -refreshToken -unsuccessfulAttempts -firstFailedLoginAt -watchHistory",
+        );
 
-        if(!updatedUser){
-            throw new ApiError(400,'Failed to update user details')
+        if (!updatedUser) {
+            throw new ApiError(400, "Failed to update user details");
         }
-    } catch(err){
-        throw new ApiError(400,'Failed to update user details',err.message?err:"Something went wrong")
+    } catch (err) {
+        throw new ApiError(
+            400,
+            "Failed to update user details",
+            err.message ? err : "Something went wrong",
+        );
     }
-    return res.status(200).json(
-        new ApiResponse(200,'User details updated successfully',updatedUser)
-    )
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                "User details updated successfully",
+                updatedUser,
+            ),
+        );
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
@@ -620,9 +645,43 @@ soln add one boolean to every document whether it is published or not and while 
 //ask chatgpt for industry level approach
 we can add this betetr when we complete all controllers probably
 */
-const deleteUserAccount = asyncHandler(async(req,res)=>{
+const deleteUserAccount = asyncHandler(async (req, res) => {});
 
-})
+/**
+ * 1.get the videoId
+ * 2.compare and find the videoId in the watchHistory array of user
+ *  (if not found) --> throw an error => "Video not found"
+ * 3.delete it from the array
+ * 4.save the user
+ * 5.response
+ */
+
+const removeVideoFromWatchHistory = asyncHandler(async (req, res) => {
+    const reqBody = z.object({
+        videoId: z.string(),
+    });
+    const parsedBody = reqBody.safeParse(req.body);
+    if (!parsedBody.success) {
+        throw new ApiError(400, "Invalid videoId sent");
+    }
+    const { videoId } = parsedBody.data;
+
+    const index = req.user.watchHistory.findIndex(
+        (id) => id.toString() === videoId.toString(),
+    );
+
+    if (index !== -1) {
+        req.user.watchHistory.splice(index, 1); 
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.user._id,{
+        watchHistory:req.user.watchHistory
+    })
+
+    return res.status(200).json(
+        new ApiResponse(200,'Request video removed from the watch History',updatedUser.watchHistory)
+    );
+});
 
 export {
     userSignup,
@@ -635,5 +694,5 @@ export {
     updateUserDetails,
     updateUserAvatar,
     getUserChannelProfile,
-    getUserWatchHistory
+    getUserWatchHistory,
 };

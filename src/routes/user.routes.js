@@ -3,7 +3,7 @@ import multer from "multer";
 const userRouter = Router();
 
 import { userSignup,loginUser,checkDuplicate,logoutUser,refreshAccessToken,changePassword,getCurrentUser,updateUserDetails,updateUserAvatar,getUserChannelProfile,getUserWatchHistory } from "../controllers/user.controllers.js";
-import { authMiddleware,verifyAccessToken,verifyRefreshToken } from "../middlewares/auth.middlewares.js";
+import { authMiddleware,verifyAccessToken2,verifyRefreshToken2} from "../middlewares/auth.middlewares.js";
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){

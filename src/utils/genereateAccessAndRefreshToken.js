@@ -1,5 +1,5 @@
-import { generateAccessToken } from "./generateAccessToken";
-import { generateRefreshToken } from "./generateRefreshToken";
+import { generateAccessToken } from "./generateAccessToken.js";
+import { generateRefreshToken } from "./generateRefreshToken.js";
 
 function generateAccessAndRefreshToken(payload){
     return {
