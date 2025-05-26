@@ -1,9 +1,11 @@
 const asyncHandler= (func)=>async(req,res,next)=>{
     console.log('inside asyncHandler');
-    Promise.resolve(func(req,res,next)).catch((err)=>{
-        console.log('ERROR : '+err);
+    try {
+        await func(req,res,next);
+    } catch (error) {
+        console.log('inside asycnHandler -> ERROR : '+err);
         next(err);
-    })
+    }
 }
 
 export {asyncHandler}
