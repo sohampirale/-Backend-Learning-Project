@@ -1,4 +1,5 @@
 import dotenv from "dotenv"
+dotenv.config();
 import express from "express"; 
 import cors from "cors"
 import cookieParser from "cookie-parser" //for being able do perform curd operqations on cookies of user
