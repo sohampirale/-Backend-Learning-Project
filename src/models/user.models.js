@@ -39,13 +39,21 @@ const userSchema= new Schema({
             type:ObjectId,
             ref:"Video"
         }
-    ]
+    ],
+    unsuccessfulAttempts:{
+        type:Number,
+        default:0
+    } ,
+    fistFirstLoginAt:{
+        type:Date,
+        default:null
+    }
 },{
     timestamps:true
 })
 
 userSchema.pre("save",async function(next){
-    if(this.isModified("pasword")){
+    if(this.isModified("password")){
         this.password=await bcrypt.hash(this.password,5);
     }
     next();
@@ -69,7 +77,6 @@ userSchema.methods.generateAccessToken=function(id){
         expiresIn:process.env.ACCESS_TOKEN_EXPIRY
     })   
 }
-
 
 userSchema.methods.generateRefreshToken= function(){
     return jwt.sign({

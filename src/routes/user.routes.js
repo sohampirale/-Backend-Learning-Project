@@ -2,21 +2,8 @@ import{Router} from "express"
 import multer from "multer";
 const userRouter = Router();
 
-import { userSignup } from "../controllers/user.controllers.js";
-
-// const storage=multer.diskStorage({
-//     destination:function(req,file,cb){
-//         console.log('inside destination function')
-//         cb(null,'public/temp/user/register');
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, Date.now() + "-" + file.originalname);
-//     }
-// })
-
-// const upload = multer({
-//     storage
-// })
+import { userSignup,loginUser,checkDuplicate,logoutUser,refreshAccessToken,changePassword,getCurrentUser,updateUserDetails,updateUserAvatar,getUserChannelProfile,getUserWatchHistory } from "../controllers/user.controllers.js";
+import { authMiddleware,verifyAccessToken,verifyRefreshToken } from "../middlewares/auth.middlewares.js";
 
 const storage=multer.diskStorage({
     destination:function(req,file,cb){
@@ -37,13 +24,24 @@ userRouter.post("/signup",upload.single('avatar'),(req,res,next)=>{
     next()
 },userSignup);
 
+userRouter.post("/login",loginUser)
 
+userRouter.get("/refreshAccessToken",refreshAccessToken);
 
-userRouter.get("/test",(req,res)=>{
-    console.log('inside test');
-    
-    res.json({
-        message:"hello from api/v1/users/test"
-    })
-})
+//secured routes
+
+userRouter.post("/logout",authMiddleware,logoutUser)
+
+userRouter.route("/get-current").get(authMiddleware,getCurrentUser);
+
+userRouter.route("/change-password").post(authMiddleware,changePassword);
+
+userRouter.route("/updateUserDetails").patch(authMiddleware,updateUserDetails);
+
+userRouter.route("/update-avatar").patch(authMiddleware,upload.single('avatar'),updateUserAvatar);
+
+userRouter.route('/channel-info').get(authMiddleware,getUserChannelProfile)
+
+userRouter.route("/getUserWatchHistory").get(authMiddleware,getUserWatchHistory);
+
 export  {userRouter}

@@ -1,7 +1,7 @@
 import {v2 as cloudinary} from "cloudinary"
 import fs from "fs"
 
-const uplodFileOnCloudinary = async function(fileUploadPath){
+const uploadFileOnCloudinary = async function(fileUploadPath){
     console.log('fileUploadPath = '+fileUploadPath);
     
     try{
@@ -25,4 +25,4 @@ const uplodFileOnCloudinary = async function(fileUploadPath){
     }
 }
 
-export {uplodFileOnCloudinary}
+export {uploadFileOnCloudinary}

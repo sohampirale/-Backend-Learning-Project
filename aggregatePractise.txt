@@ -1,0 +1,383 @@
+db.users.insertMany([
+  { name: "Aman",    age: 22, city: "Mumbai",    gender: "male",   salary: 50000 },
+  { name: "Neha",    age: 28, city: "Delhi",     gender: "female", salary: 65000 },
+  { name: "Ravi",    age: 30, city: "Mumbai",    gender: "male",   salary: 70000 },
+  { name: "Priya",   age: 24, city: "Delhi",     gender: "female", salary: 55000 },
+  { name: "Karan",   age: 26, city: "Bangalore", gender: "male",   salary: 60000 },
+  { name: "Aisha",   age: 32, city: "Mumbai",    gender: "female", salary: 72000 },
+  { name: "Varun",   age: 21, city: "Pune",      gender: "male",   salary: 48000 },
+  { name: "Sonal",   age: 27, city: "Bangalore", gender: "female", salary: 68000 },
+  { name: "Deepak",  age: 29, city: "Pune",      gender: "male",   salary: 64000 },
+  { name: "Ritu",    age: 23, city: "Delhi",     gender: "female", salary: 53000 },
+  { name: "Tarun",   age: 35, city: "Mumbai",    gender: "male",   salary: 80000 },
+  { name: "Meera",   age: 31, city: "Bangalore", gender: "female", salary: 71000 },
+  { name: "Gaurav",  age: 33, city: "Pune",      gender: "male",   salary: 76000 },
+  { name: "Anjali",  age: 25, city: "Delhi",     gender: "female", salary: 59000 },
+  { name: "Sunil",   age: 28, city: "Mumbai",    gender: "male",   salary: 67000 }
+]);
+
+//1
+// db.users.aggregate([
+//   {
+//     $match:{city:'Mumbai'}
+//   }  
+// ])
+
+//2
+// db.users.aggregate([
+//   {
+//     $project:{
+//       name:1,
+//       age:1,
+//       _id:0
+//     }
+//   }  
+// ])
+
+//3
+// db.users.aggregate([
+//   {
+//     $sort:{
+//       salary:-1
+//     }
+//   } ,
+//   {
+//     $project:{
+//       name:1,
+//       _id:0
+//     }
+//   }
+// ])
+
+//4 
+// db.users.aggregate([
+//   {
+//     $sort:{
+//       salary:-1
+//     }
+//   } ,
+//   {
+//     $limit:3
+//   }
+// ])
+
+//5 
+// db.users.aggregate([
+//   {
+//     $sort:{
+//       salary:-1
+//     }
+//   },
+//   {
+//     $skip:3
+//   },
+//   {
+//     $limit:3
+//   }
+//   ])
+
+//6 --> $sum 
+
+// db.users.aggregate([
+//   {
+//     $group:{
+//       _id:"$city",
+//       count:{
+//           $sum:1
+//         }
+//     }
+//   }
+//   ])
+
+// db.users.aggregate([
+//   {
+//     $group:{
+//       _id:"$city",
+//       totalSalary:{
+//         $sum:"$salary"
+//       }
+//     }
+//   }
+//   ])
+
+//7 
+// db.users.aggregate([
+//   {
+//     $group:{
+//       _id:"$city",
+//       avgSalary:{
+//         $avg:"$salary"
+//       }
+//     }
+//   }
+//   ])
+
+//8 
+// db.users.aggregate([
+//   {
+//     $match:{
+//       gender:"female"
+//     }
+//   },
+//   {
+//     $group:{
+//       _id:"$gender",
+//       count:{
+//         $sum:1
+//       }
+//     }
+//   },
+//   {
+//     $project:{
+//       _id:0,
+//       count:1
+//     }
+//   }
+// ])
+
+//9 
+// db.users.aggregate([
+//   {
+//     $match:{
+//       age:{$gte:25}
+//     }
+//   },{
+//     $group:{
+//       _id:"$city",
+//       avgSalary:{
+//         $avg:"$salary"
+//       }
+//     }
+//   },{
+//     $sort:{
+//       avgSalary:-1
+//     }
+//   }
+//   ])
+
+//10 
+// db.users.aggregate([
+//   {
+//     $group:{
+//       _id:"$city",
+//       count:{
+//         $sum:1
+//       }
+//     }
+//   },
+//   {
+//     $match:{
+//       count:{
+//         $gt:3
+//       }
+//     }
+//   }
+//   ])
+
+//11
+// db.users.aggregate([
+//   {
+//     $project:{
+//       name:1,
+//       age:1,
+//       city:1,
+//       yearOfBirth : {
+//         $subtract:[2025,"$age"]
+//       },
+//       _id:0
+//     }
+//   },{
+//     $match:{
+//       city:"Mumbai"
+//     }
+//   },{
+//     $project:{
+//       name:1,
+//       yearOfBirth:1
+//     }
+//   }
+//   ])
+
+// db.users.aggregate([
+//   { $project: {
+//       name: 1,
+//       age: 1,
+//       yearOfBirth: { $subtract: [2025, "$age"] },
+//       _id: 0
+//   }}
+// ])
+
+//12
+// db.users.aggregate([
+//   {
+//     $group:{
+//       _id:"$gender",
+//       highestSalary:{
+//         $max:"$salary"
+//       }
+//     }
+//   }
+//   ])
+
+//13
+// db.users.aggregate([
+// {
+//     $group:{
+//       _id:"$city",
+//       highestSalary:{
+//         $max:"$salary"
+//       },
+//       name:{
+//         $first:'$name'
+//       },
+//     }
+//   },{
+//     $sort:{
+//       _id:1
+//     }
+//   }
+//   ])
+
+//14 
+
+//not correct
+// db.users.aggregate([
+//   {
+//     $project:{
+//       name:1,
+//       totalUsers:{
+//         $sum:1
+//       }
+//     }
+//   },{
+//     $project:{
+//       name:1,
+//       avgSalary:{
+//         $avg:"$salary" 
+//       }
+//     }
+//   }
+//   ])
+  
+
+
+
+  ------------------------------------------
+  pipeline inside pipeline 
+  finding out watchHistory
+
+db.users.insertMany([
+  {
+    _id: ObjectId("6651d2d790f1a2a5e46b1a01"),
+    username: "soham123",
+    email: "soham@example.com",
+    fullName: "Soham Dev",
+    watchHistory: [
+      ObjectId("6651d2d790f1a2a5e46b1b01"),
+      ObjectId("6651d2d790f1a2a5e46b1b02")
+    ]
+  },
+  {
+    _id: ObjectId("6651d2d790f1a2a5e46b1a02"),
+    username: "john_doe",
+    email: "john@example.com",
+    fullName: "John Doe",
+    watchHistory: [
+      ObjectId("6651d2d790f1a2a5e46b1b02"),
+      ObjectId("6651d2d790f1a2a5e46b1b03")
+    ]
+  }
+]);
+
+
+db.videos.insertMany([
+  {
+    _id: ObjectId("6651d2d790f1a2a5e46b1b01"),
+    title: "Intro to DSA",
+    owner: ObjectId("6651d2d790f1a2a5e46b1a02"),
+    duration: 600,
+    views: 1500,
+    isPublished: true
+  },
+  {
+    _id: ObjectId("6651d2d790f1a2a5e46b1b02"),
+    title: "Advanced JS",
+    owner: ObjectId("6651d2d790f1a2a5e46b1a02"),
+    duration: 900,
+    views: 2100,
+    isPublished: true
+  },
+  {
+    _id: ObjectId("6651d2d790f1a2a5e46b1b03"),
+    title: "System Design Basics",
+    owner: ObjectId("6651d2d790f1a2a5e46b1a01"),
+    duration: 1200,
+    views: 500,
+    isPublished: true
+  }
+]);
+
+
+
+//get sohams watch history
+db.users.aggregate([
+  {
+    $match:{
+      _id:ObjectId("6651d2d790f1a2a5e46b1a01")
+    }
+  },{
+    $lookup:{
+      from:"videos",
+      localField:"watchHistory",
+      foreignField:"_id",
+      as:"watchedVideos",
+      pipeline:[
+        {
+          $lookup:{
+            from:"users",
+            localField:"owner",
+            foreignField:"_id",
+            as:"owner",
+            pipeline:[{
+              $project:{
+                channelId:"$_id",
+                _id:0,
+                channelName:"$fullName"
+              }
+            }
+            ]
+          }
+          
+        },{
+            $addFields:{
+              owner:{
+                $first:"$owner"
+              }
+            }
+          }
+        ,{
+          $project:{
+            videoId:"$_id",
+            _id:0,
+            thumbnail:1,
+            title:1,
+            owner:1,
+            decription:1,
+            duration:1,
+            views:1,
+            isPublished:1
+          }
+        }
+      ]
+    }
+  },{
+      $project:{
+        _id:1,
+        watchedVideos:1,
+        avatar:1
+      }
+    }
+  
+  ])
+
+
